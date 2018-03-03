@@ -35,11 +35,9 @@ echo
 read -p "Enter the confluence database you want to create (confluence_db): " confluence_db
 confluence_db=${confluence_db:-confluence_db}
 
-printf "CREATE USER $confluence_user WITH PASSWORD '$confluence_usr_pwd';\nCREATE DATABASE $confluence_db WITH ENCODING='UTF8' OWNER=$confluence_user CONNECTION LIMIT=-1;" > confluence-db.sql
+printf "CREATE USER $confluence_user WITH PASSWORD '$confluence_usr_pwd';\nCREATE DATABASE $confluence_db WITH ENCODING='UTF8' OWNER=$confluence_user CONNECTION LIMIT=-1;\nGRANT ALL ON ALL TABLES IN SCHEMA public TO $confluence_user;\nGRANT ALL ON SCHEMA public TO $confluence_user;" > myconf/confluence-db.sql
 
-sudo -u postgres psql -f confluence-db.sql
-sudo -u postgres psql -d "$confluence_db" -c "GRANT ALL ON ALL TABLES IN SCHEMA public TO $confluence_user;"
-sudo -u postgres psql -d "$confluence_db" -c "GRANT ALL ON SCHEMA public TO $confluence_user;"
+sudo -u postgres psql -f myconf/confluence-db.sql
 
 
 #Selinux config mode update to permissive
@@ -69,34 +67,41 @@ server_add=${server_add:-"youraddress.com"}
 read -p "Enter your confluence server port (8090):" server_port
 server_port=${server_port:-"8090"}
 
-cp -v CONF/httpd/confluence.conf /opt/rh/httpd24/root/etc/httpd/conf.d/
+#create customised files
+cp -v CONF/httpd/confluence.conf myconf/
+cp -v CONF/confluence/server.xml myconf/
+
+
 mkdir -pv /opt/rh/httpd24/root/var/www/confluence/logs/
 
-sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" CONF/httpd/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
-sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" CONF/httpd/confluence.conf  && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
-sed -i "s|ServerName.*|ServerName $server_add|" CONF/httpd/confluence.conf  && echo "ServerName added to confluence.conf file successfully" || echo "ServerName update on confluence.conf file failed"
-sed -i "s|ServerAlias.*|ServerAlias $server_add|" CONF/httpd/confluence.conf  && echo "ServerAlias added to confluence.conf file successfully" || echo "ServerAlias update on confluence.conf file failed"
-sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" CONF/httpd/confluence.conf  && echo "ProxyPass added to confluence.conf file successfully" || echo "ProxyPass update on confluence.conf file failed"
-sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" CONF/httpd/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
-sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" CONF/httpd/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
+sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" myconf/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
+sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" myconf/confluence.conf && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
+sed -i "s|ServerName.*|ServerName $server_add|" myconf/confluence.conf  && echo "ServerName added to confluence.conf file successfully" || echo "ServerName update on confluence.conf file failed"
+sed -i "s|ServerAlias.*|ServerAlias $server_add|" myconf/confluence.conf && echo "ServerAlias added to confluence.conf file successfully" || echo "ServerAlias update on confluence.conf file failed"
+sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" myconf/confluence.conf && echo "ProxyPass added to confluence.conf file successfully" || echo "ProxyPass update on confluence.conf file failed"
+sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" myconf/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
+sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" myconf/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
 
-sed -i "s|proxyName=.*|proxyName='$server_add'|" CONF/confluence/server.xml  && echo "ProxyName added to server.xml file successfully" || echo "ProxyName update on server.xml file failed"
+sed -i "s|proxyName=.*|proxyName='$server_add'|" myconf/server.xml  && echo "ProxyName added to server.xml file successfully" || echo "ProxyName update on server.xml file failed"
 
 #setup apache server
 systemctl enable httpd24-httpd
 systemctl start httpd24-httpd 
+cp -v myconf/confluence.conf /opt/rh/httpd24/root/etc/httpd/conf.d/
+
+
 
 #download and prepare confluence
 echo -e "\033[32mDownload and prepare latest version of confluence package\033[0m"
-read -p "Enter the version of confluence you want to install(6.7.10):" confluence_ver
+read -p "Enter the version of confluence you want to install(6.7.1):" confluence_ver
 confluence_ver=${confluence_ver:-"6.7.1"}
 
-wget https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
-chmod +x atlassian-confluence-$confluence_ver-x64.bin
-sh atlassian-confluence-$confluence_ver-x64.bin
+wget -P download/  https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
+chmod u+x download/atlassian-confluence-$confluence_ver-x64.bin
+sh download/atlassian-confluence-$confluence_ver-x64.bin
 
 #copy updated server.xml file
-cp -v CONF/confluence/server.xml /opt/atlassian/confluence/conf/server.xml
+cp -v myconf/server.xml /opt/atlassian/confluence/conf/server.xml
 
 #add ssl certificate to java key store
 echo -e "\033[32mSSL certification is going to be added to confluence java keystore\033[0m"
@@ -113,3 +118,4 @@ echo -e "\033[31m=======Press Any Key to reboot the system!!!!!!!========\033[0m
 read -n1
 echo
 reboot
+

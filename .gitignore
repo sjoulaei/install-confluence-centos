@@ -1,0 +1,4 @@
+#ignore files in working forlders
+myconf/
+download/
+
