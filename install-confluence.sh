@@ -76,13 +76,8 @@ mkdir -pv /opt/rh/httpd24/root/var/www/confluence/logs/
 
 sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" myconf/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
 sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" myconf/confluence.conf && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
-sed -i "s|ServerName.*|ServerName $server_add|" myconf/confluence.conf  && echo "ServerName added to confluence.conf file successfully" || echo "ServerName update on confluence.conf file failed"
-sed -i "s|ServerAlias.*|ServerAlias $server_add|" myconf/confluence.conf && echo "ServerAlias added to confluence.conf file successfully" || echo "ServerAlias update on confluence.conf file failed"
-sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" myconf/confluence.conf && echo "ProxyPass added to confluence.conf file successfully" || echo "ProxyPass update on confluence.conf file failed"
-sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" myconf/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
-sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" myconf/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
-
-sed -i "s|proxyName=.*|proxyName='$server_add'|" myconf/server.xml  && echo "ProxyName added to server.xml file successfully" || echo "ProxyName update on server.xml file failed"
+sed -i "s|confluence.yoursite.com|$server_add|g" myconf/confluence.conf  && echo "server address updated on confluence.conf file successfully" || echo "server address update on confluence.conf failed"
+sed -i "s|8090|$server_port|g" myconf/confluence.conf  && echo "server port updated on confluence.conf file successfully" || echo "server port update on confluence.conf failed"
 
 #setup apache server
 systemctl enable httpd24-httpd
