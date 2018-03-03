@@ -80,6 +80,7 @@ sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" /opt/rh/ht
 sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
 sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
 
+sed -i "s|proxyName=.*|proxyName='$server_add'|" CONF/confluence/server.xml  && echo "ProxyName added to server.xml file successfully" || echo "ProxyName update on server.xml file failed"
 
 #setup apache server
 systemctl enable httpd24-httpd
@@ -93,6 +94,9 @@ confluence_ver=${confluence_ver:-"6.7.1"}
 wget https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
 chmod +x atlassian-confluence-$confluence_ver-x64.bin
 sh atlassian-confluence-$confluence_ver-x64.bin
+
+#copy updated server.xml file
+cp -v CONF/confluence/server.xml /opt/atlassian/confluence/conf/server.xml
 
 #add ssl certificate to java key store
 echo -e "\033[32mSSL certification is going to be added to confluence java keystore\033[0m"
