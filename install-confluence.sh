@@ -72,13 +72,13 @@ server_port=${server_port:-"8090"}
 cp -v CONF/httpd/confluence.conf /opt/rh/httpd24/root/etc/httpd/conf.d/
 mkdir -pv /opt/rh/httpd24/root/var/www/confluence/logs/
 
-sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
-sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
-sed -i "s|ServerName.*|ServerName $server_add|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ServerName added to confluence.conf file successfully" || echo "ServerName update on confluence.conf file failed"
-sed -i "s|ServerAlias.*|ServerAlias $server_add|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ServerAlias added to confluence.conf file successfully" || echo "ServerAlias update on confluence.conf file failed"
-sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ProxyPass added to confluence.conf file successfully" || echo "ProxyPass update on confluence.conf file failed"
-sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
-sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" /opt/rh/httpd24/root/etc/httpd/conf.d/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
+sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" CONF/httpd/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
+sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" CONF/httpd/confluence.conf  && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
+sed -i "s|ServerName.*|ServerName $server_add|" CONF/httpd/confluence.conf  && echo "ServerName added to confluence.conf file successfully" || echo "ServerName update on confluence.conf file failed"
+sed -i "s|ServerAlias.*|ServerAlias $server_add|" CONF/httpd/confluence.conf  && echo "ServerAlias added to confluence.conf file successfully" || echo "ServerAlias update on confluence.conf file failed"
+sed -i "s|ProxyPass .*|ProxyPass / http://$server_add:$server_port/|" CONF/httpd/confluence.conf  && echo "ProxyPass added to confluence.conf file successfully" || echo "ProxyPass update on confluence.conf file failed"
+sed -i "s|ProxyPassReverse.*|ProxyPassReverse / http://$server_add:$server_port/|" CONF/httpd/confluence.conf  && echo "ProxyPassReverse added to confluence.conf file successfully" || echo "ProxyPassReverse update on confluence.conf file failed"
+sed -i "s|Redirect Permanent.*|Redirect Permanent / https://$server_add/|" CONF/httpd/confluence.conf  && echo "Redirect added to confluence.conf file successfully" || echo "Redirect update on confluence.conf file failed"
 
 sed -i "s|proxyName=.*|proxyName='$server_add'|" CONF/confluence/server.xml  && echo "ProxyName added to server.xml file successfully" || echo "ProxyName update on server.xml file failed"
 
