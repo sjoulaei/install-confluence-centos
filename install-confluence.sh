@@ -6,6 +6,40 @@
 #BLUE="\033[34m"
 #RESET="\033[0m"
 
+#####################################################################
+# Get the inputs from user                                          #
+#####################################################################
+read -p "Enter the confluence user name you want to create(confluence_user): " confluence_user
+confluence_user=${confluence_user:-confluence_user}
+read -sp "Enter the new confluence user password: " confluence_usr_pwd
+echo
+read -p "Enter the confluence database you want to create (confluence_db): " confluence_db
+confluence_db=${confluence_db:-confluence_db}
+
+#copy your ssl certificates
+echo -e "For SSL certificates to work properly you need to copy the certificate files into the right location. I assume you have them in below addresses:"
+echo -e "  - certificate file: /etc/pki/tls/certs/your_cert_file.crt"
+echo -e "  - certificate key file: /etc/pki/tls/private/your_private_key_file.key"
+
+read -p "Enter the ssl certification file name (localhost.crt):" ssl_crt
+ssl_crt=${ssl_crt:-"localhost.crt"}
+read -p "Enter the ssl certification private key file name (localhost.key):" ssl_key
+ssl_key=${ssl_key:-"localhost.key"}
+
+read -p "Enter your server address (youraddress.com):" server_add
+server_add=${server_add:-"youraddress.com"}
+
+read -p "Enter your confluence server port (8090):" server_port
+server_port=${server_port:-"8090"}
+
+echo -e "\033[32mDownload and prepare latest version of confluence package\033[0m"
+read -p "Enter the version of confluence you want to install(6.7.2):" confluence_ver
+confluence_ver=${confluence_ver:-"6.7.2"}
+
+#Java keystore password default value. Default value most certainly hasn't been changed.
+keystore_pwd=changeit
+###################################################################ee
+
 #general prep
 echo -e "\033[32m Install some generic packages\033[0m"
 yum update -y
@@ -27,14 +61,6 @@ sed -i "s|host    all             all             127.0.0.1/32.*|host    all    
 systemctl start postgresql
 
 #prepare database: create database, user and grant permissions to the user
-echo "now it's time to prepare the database. Keep record of your answers to next questions as you will need them later when starting your server on GUI"
-read -p "Enter the confluence user name you want to create(confluence_user): " confluence_user
-confluence_user=${confluence_user:-confluence_user}
-read -sp "Enter the new confluence user password: " confluence_usr_pwd
-echo
-read -p "Enter the confluence database you want to create (confluence_db): " confluence_db
-confluence_db=${confluence_db:-confluence_db}
-
 printf "CREATE USER $confluence_user WITH PASSWORD '$confluence_usr_pwd';\nCREATE DATABASE $confluence_db WITH ENCODING='UTF8' OWNER=$confluence_user CONNECTION LIMIT=-1;\nGRANT ALL ON ALL TABLES IN SCHEMA public TO $confluence_user;\nGRANT ALL ON SCHEMA public TO $confluence_user;" > myconf/confluence-db.sql
 
 sudo -u postgres psql -f myconf/confluence-db.sql
@@ -43,31 +69,12 @@ sudo -u postgres psql -f myconf/confluence-db.sql
 #Selinux config mode update to permissive
 
 echo -e "\033[32mFor apache to work properly with ssl, change the mode to permissive"
-echo -e "Press any key to update the config file or Ctrl-c to exit.\033[0m"
-read -n1
-echo
 sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config && echo SUCCESS || echo FAILURE
 
 
-#copy your ssl certificates
-echo -e "For SSL certificates to work properly you need to copy the certificate files into the right location. I assume you have them in below addresses:"
-echo -e "  - certificate file: /etc/pki/tls/certs/your_cert_file.crt"
-echo -e "  - certificate key file: /etc/pki/tls/private/your_private_key_file.key"
-
-read -p "Enter the ssl certification file name (localhost.crt):" ssl_crt
-ssl_crt=${ssl_crt:-"localhost.crt"}
-read -p "Enter the ssl certification private key file name (localhost.key):" ssl_key
-ssl_key=${ssl_key:-"localhost.key"}
-
 
 #update confluence.conf virtual host file
-read -p "Enter your server address (youraddress.com):" server_add
-server_add=${server_add:-"youraddress.com"}
-
-read -p "Enter your confluence server port (8090):" server_port
-server_port=${server_port:-"8090"}
-
-#create customised files
+##create customised files
 cp -v CONF/httpd/confluence.conf myconf/
 cp -v CONF/confluence/server.xml myconf/
 
@@ -89,9 +96,6 @@ cp -v myconf/confluence.conf /opt/rh/httpd24/root/etc/httpd/conf.d/
 
 
 #download and prepare confluence
-echo -e "\033[32mDownload and prepare latest version of confluence package\033[0m"
-read -p "Enter the version of confluence you want to install(6.7.1):" confluence_ver
-confluence_ver=${confluence_ver:-"6.7.1"}
 
 wget -P download/  https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
 chmod u+x download/atlassian-confluence-$confluence_ver-x64.bin
@@ -102,8 +106,6 @@ cp -v myconf/server.xml /opt/atlassian/confluence/conf/server.xml
 
 #add ssl certificate to java key store
 echo -e "\033[32mSSL certification is going to be added to confluence java keystore\033[0m"
-read -p "What is the password for keystore(changeit):" keystore_pwd
-keystore_pwd=${keystore_pwd:-"changeit"}
 /opt/atlassian/confluence/jre/bin/keytool -import -alias $server_add -keystore /opt/atlassian/confluence/jre/lib/security/cacerts -storepass $keystore_pwd -file /etc/pki/tls/certs/$ssl_crt
 
 
