@@ -1,0 +1,9 @@
+#install4j response file for Confluence 6.7.2
+#Saeed Joulaei
+executeLauncherAction$Boolean=true
+app.install.service$Boolean=true
+sys.confirmedUpdateInstallationString=false
+launch.application$Boolean=true
+existingInstallationDir=/opt/Confluence
+sys.languageId=en
+sys.installationDir=/opt/atlassian/confluence
