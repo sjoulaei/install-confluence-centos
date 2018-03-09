@@ -105,7 +105,7 @@ sed -i "s|8000|$control_port|g" myconf/response.varfile  && echo "control port u
 
 wget -P download/  https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
 chmod u+x download/atlassian-confluence-$confluence_ver-x64.bin
-sh download/atlassian-confluence-$confluence_ver-x64.bin -q -varfile myconf/response.varfile
+sh download/atlassian-confluence-$confluence_ver-x64.bin -q -varfile ../myconf/response.varfile
 
 #copy updated server.xml file
 cp -v myconf/server.xml /opt/atlassian/confluence/conf/server.xml
