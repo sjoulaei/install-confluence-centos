@@ -1,9 +1,15 @@
 #install4j response file for Confluence 6.7.2
 #Saeed Joulaei
-executeLauncherAction$Boolean=true
-app.install.service$Boolean=true
-sys.confirmedUpdateInstallationString=false
+#install4j response file for Confluence 6.7.2
+#Fri Mar 09 01:13:00 UTC 2018
 launch.application$Boolean=true
+rmiPort$Long=8005
+app.install.service$Boolean=true
 existingInstallationDir=/opt/Confluence
+sys.confirmedUpdateInstallationString=false
 sys.languageId=en
 sys.installationDir=/opt/atlassian/confluence
+app.confHome=/var/atlassian/application-data/confluence
+executeLauncherAction$Boolean=true
+httpPort$Long=8095
+portChoice=custom
