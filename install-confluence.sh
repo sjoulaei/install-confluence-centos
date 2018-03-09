@@ -68,7 +68,7 @@ sudo -u postgres psql -f myconf/confluence-db.sql
 
 #Selinux config mode update to permissive
 
-echo -e "\033[32mFor apache to work properly with ssl, change the mode to permissive"
+echo -e "\033[32mFor apache to work properly with ssl, change the mode to permissive\033[0m"
 sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config && echo SUCCESS || echo FAILURE
 
 
