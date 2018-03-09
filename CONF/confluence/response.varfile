@@ -1,7 +1,5 @@
 #install4j response file for Confluence 6.7.2
 #Saeed Joulaei
-#install4j response file for Confluence 6.7.2
-#Fri Mar 09 01:13:00 UTC 2018
 launch.application$Boolean=true
 rmiPort$Long=8005
 app.install.service$Boolean=true
