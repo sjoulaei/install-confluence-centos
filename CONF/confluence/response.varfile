@@ -1,7 +1,7 @@
 #install4j response file for Confluence 6.7.2
 #Saeed Joulaei
 launch.application$Boolean=true
-rmiPort$Long=8005
+rmiPort$Long=8000
 app.install.service$Boolean=true
 existingInstallationDir=/opt/Confluence
 sys.confirmedUpdateInstallationString=false
@@ -9,5 +9,5 @@ sys.languageId=en
 sys.installationDir=/opt/atlassian/confluence
 app.confHome=/var/atlassian/application-data/confluence
 executeLauncherAction$Boolean=true
-httpPort$Long=8095
+httpPort$Long=8090
 portChoice=custom
