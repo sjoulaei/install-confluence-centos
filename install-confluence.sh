@@ -29,10 +29,12 @@ ssl_key=${ssl_key:-"localhost.key"}
 read -p "Enter your server address (youraddress.com):" server_add
 server_add=${server_add:-"youraddress.com"}
 
-read -p "Enter your confluence server port (8090):" server_port
-server_port=${server_port:-"8090"}
+read -p "Enter your confluence HTTP Port Number (8090):" http_port
+http_port=${http_port:-"8090"}
 
-echo -e "\033[32mDownload and prepare latest version of confluence package\033[0m"
+read -p "Enter your confluence Control Port Number (8000):" control_port
+control_port=${control_port:-"8000"}
+
 read -p "Enter the version of confluence you want to install(6.7.2):" confluence_ver
 confluence_ver=${confluence_ver:-"6.7.2"}
 
@@ -73,18 +75,19 @@ sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config && echo SUCCESS |
 
 
 
-#update confluence.conf virtual host file
-##create customised files
+#create customised files
 cp -v CONF/httpd/confluence.conf myconf/
 cp -v CONF/confluence/server.xml myconf/
+cp -v CONF/confluence/response.varfile myconf/
 
+#update confluence.conf virtual host file
 
 mkdir -pv /opt/rh/httpd24/root/var/www/confluence/logs/
 
 sed -i "s|SSLCertificateFile.*|SSLCertificateFile /etc/pki/tls/certs/$ssl_crt|" myconf/confluence.conf  && echo "cert info added to confluence.conf file successfully" || echo "cert info update on confluence.conf file failed"
 sed -i "s|SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/pki/tls/private/$ssl_key|" myconf/confluence.conf && echo "ssl key info added to confluence.conf file successfully" || echo "ssl key info update on confluence.conf file failed"
 sed -i "s|confluence.yoursite.com|$server_add|g" myconf/confluence.conf  && echo "server address updated on confluence.conf file successfully" || echo "server address update on confluence.conf failed"
-sed -i "s|8090|$server_port|g" myconf/confluence.conf  && echo "server port updated on confluence.conf file successfully" || echo "server port update on confluence.conf failed"
+sed -i "s|8090|$http_port|g" myconf/confluence.conf  && echo "server port updated on confluence.conf file successfully" || echo "server port update on confluence.conf failed"
 
 sed -i "s|confluence.yoursite.com|$server_add|g" myconf/server.xml  && echo "server address updated on server.xml file successfully" || echo "server address update on server.xml failed"
 
@@ -96,10 +99,13 @@ cp -v myconf/confluence.conf /opt/rh/httpd24/root/etc/httpd/conf.d/
 
 
 #download and prepare confluence
+sed -i "s|8090|$http_port|g" myconf/response.varfile  && echo "http port updated on successfully" || echo "server port update on confluence.conf failed"
+sed -i "s|8000|$control_port|g" myconf/response.varfile  && echo "control port updated on successfully" || echo "server port update on confluence.conf failed"
+
 
 wget -P download/  https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-$confluence_ver-x64.bin
 chmod u+x download/atlassian-confluence-$confluence_ver-x64.bin
-sh download/atlassian-confluence-$confluence_ver-x64.bin -q -varfile CONF/confluence/response.varfile
+sh download/atlassian-confluence-$confluence_ver-x64.bin -q -varfile myconf/response.varfile
 
 #copy updated server.xml file
 cp -v myconf/server.xml /opt/atlassian/confluence/conf/server.xml
