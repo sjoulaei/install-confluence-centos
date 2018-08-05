@@ -45,25 +45,27 @@ keystore_pwd=changeit
 #general prep
 echo -e "\033[32m Install some generic packages\033[0m"
 yum update -y
-yum install -y  vim wget centos-release-scl
+yum install -y  vim wget centos-release-scl\
+		https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
 
 #install required packages
 echo -e "\033[32mInstall packages you need for confluence\033[0m"
-yum install -y  postgresql-server\
+yum install -y  postgresql96-server\
                 httpd24-httpd httpd24-mod_ssl httpd24-mod_proxy_html
 
 #setup database server
-postgresql-setup initdb
-export PGDATA=/var/lib/pgsql/data
-systemctl enable postgresql
+/usr/pgsql-9.6/bin/postgresql96-setup initdb
+
+
 
 #set postgresql to accept connections
-sed -i "s|host    all             all             127.0.0.1/32.*|host    all             all             127.0.0.1/32            md5|" /var/lib/pgsql/data/pg_hba.conf  && echo "pg_hba.conf file updated successfully" || echo "failed to update pg_hba.conf"
+sed -i "s|host    all             all             127.0.0.1/32.*|host    all             all             127.0.0.1/32            md5|" /var/lib/pgsql/9.6/data/pg_hba.conf  && echo "pg_hba.conf file updated successfully" || echo "failed to update pg_hba.conf"
 
-systemctl start postgresql
+systemctl enable postgresql-9.6
+systemctl start postgresql-9.6
 
 #prepare database: create database, user and grant permissions to the user
-printf "CREATE USER $confluence_user WITH PASSWORD '$confluence_usr_pwd';\nCREATE DATABASE $confluence_db WITH ENCODING='UTF8' OWNER=$confluence_user CONNECTION LIMIT=-1;\nGRANT ALL ON ALL TABLES IN SCHEMA public TO $confluence_user;\nGRANT ALL ON SCHEMA public TO $confluence_user;" > myconf/confluence-db.sql
+printf "CREATE USER $confluence_user WITH PASSWORD '$confluence_usr_pwd';\nCREATE DATABASE $confluence_db WITH ENCODING='UNICODE' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE=template0;\nGRANT ALL PRIVILEGES ON DATABASE $confluence_db TO $confluence_user;" > myconf/confluence-db.sql
 
 sudo -u postgres psql -f myconf/confluence-db.sql
 
