@@ -16,11 +16,11 @@ It is tested on newly installed Centos7 machines on VM and DigitalOcean droplets
 
 Create a new Centos7 (minimal installation will do) installation. Login with `root` or other priveledged user and run below commands
 
-    yum install git
+    sudo yum install git
     cd /opt/
-    git clone https://github.com/sjoulaei/install-confluence-centos.git
+    sudo git clone https://github.com/sjoulaei/install-confluence-centos.git
     cd install-confluence-centos
-    ./install-confluence.sh
+    sudo ./install-confluence.sh
 
 Few questions will be asked about the details of the installation. The only one that you need to change is the password for the confluence database user. The rest can be left as default values (just press Enter).
 
