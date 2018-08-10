@@ -21,7 +21,8 @@ confluence_db=confluence_db
 #Default location: certificate key file: /etc/pki/tls/private/your_private_key_file.key"
 ssl_crt="localhost.crt"
 ssl_key="localhost.key"
-server_add="youraddress.com"
+#to access from outside change this to public address. e.g. confluence.yourdomain.com
+server_add="localhost"
 http_port="8090"
 control_port="8000"
 #Confluence server version that you want to install.
