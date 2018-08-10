@@ -7,6 +7,7 @@ It installs:
 * prepare confluence database
 
 **Warning**
+
 **This script is not meant to cover all basis. It is created to ease the installation of confluence on a fresh Centos7 installation.**
 
 I haven't spent much time on error handling and covering all various scenarios.
