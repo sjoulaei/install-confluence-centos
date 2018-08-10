@@ -111,7 +111,7 @@ cp -v myconf/server.xml /opt/atlassian/confluence/conf/server.xml
 
 #add ssl certificate to java key store
 echo -e "\033[32mSSL certification is going to be added to confluence java keystore\033[0m"
-/opt/atlassian/confluence/jre/bin/keytool -import -alias $server_add -keystore /opt/atlassian/confluence/jre/lib/security/cacerts -storepass $keystore_pwd -file /etc/pki/tls/certs/$ssl_crt
+/opt/atlassian/confluence/jre/bin/keytool -import -alias $server_add -keystore /opt/atlassian/confluence/jre/lib/security/cacerts -storepass $keystore_pwd -file /etc/pki/tls/certs/$ssl_crt -noprompt
 
 ###############################################################################
 #finally reboot the server
